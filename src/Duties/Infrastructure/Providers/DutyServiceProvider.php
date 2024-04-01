@@ -10,7 +10,7 @@ use Modules\Duties\Domain\Enums\DutyTypeEnum;
 use Modules\Duties\Domain\Repositories\DutyInsertRepositoryInterface;
 use Modules\Duties\Infrastructure\Adapters\DocumentAdapter;
 use Modules\Duties\Infrastructure\Adapters\DocumentAdapterInterface;
-use Modules\Duties\Infrastructure\Parsers\Drivers\DTRParser;
+use Modules\Duties\Infrastructure\Parsers\DTR\DTRParser;
 use Modules\Duties\Infrastructure\Parsers\ParserRegistry;
 use Modules\Duties\Infrastructure\Repositories\DutyModelInsertRepository;
 

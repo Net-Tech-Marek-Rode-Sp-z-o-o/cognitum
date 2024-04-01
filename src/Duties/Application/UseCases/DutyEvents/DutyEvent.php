@@ -11,13 +11,13 @@ final readonly class DutyEvent implements Arrayable
     public function __construct(
         public string $id,
         public string $baseDate,
-        public string|null $from,
-        public string|null $to,
+        public ?string $from,
+        public ?string $to,
         public string $type,
-        public string|null $checkIn,
-        public string|null $checkOut,
-        public string|null $departure,
-        public string|null $arrival,
+        public ?string $checkIn,
+        public ?string $checkOut,
+        public ?string $departure,
+        public ?string $arrival,
     ) {
     }
 

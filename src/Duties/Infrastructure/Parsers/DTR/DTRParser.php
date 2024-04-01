@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Modules\Duties\Infrastructure\Parsers\Drivers;
+namespace Modules\Duties\Infrastructure\Parsers\DTR;
 
 use Carbon\Carbon;
 use DOMDocument;
@@ -94,22 +94,49 @@ final class DTRParser implements ParserInterface
                 $events[] = DutyEventEnum::CO;
             }
 
-            $duties[] = new Duty(
-                id: VO\DutyId::getNew(),
-                date: new VO\DutyDate($currentDate),
-                check: new VO\DutyCheck(in: $checkInDate, out: $checkOutDate),
-                type: $this->type(),
-                flight: new VO\DutyFlight($activityType->isFlight() ? $activity : null),
-                location: new VO\DutyLocation(from: $from, to: $to),
-                period: new VO\DutyPeriod(
-                    departure: $this->getDateForTime($currentDate, $departure),
-                    arrival: $this->getDateForTime($currentDate, $arrival),
-                ),
-                events: $events,
-            );
+            $duties[] = [
+                'date' => $currentDate,
+                'check_in' => $checkInDate,
+                'check_out' => $checkOutDate,
+                'flight' => $activityType->isFlight() ? $activity : null,
+                'from' => $from,
+                'to' => $to,
+                'departure' => $this->getDateForTime($currentDate, $departure),
+                'arrival' => $this->getDateForTime($currentDate, $arrival),
+                'events' => $events,
+            ];
         }
 
-        return $duties;
+        $groupedDuties = collect($duties)
+            ->groupBy(fn (array $duty) => $duty['date']->toString())
+            ->values()
+            ->toArray();
+
+        $result = [];
+        foreach ($groupedDuties as $duties) {
+            $checkIn = $duties[0]['check_in'];
+
+            foreach ($duties as $i => $duty) {
+                $checkOut = $this->getCheckOut(array_slice($duties, $i + 1)) ?? $duty['check_out'];
+                $checkIn = $duty['check_in'] ?? $checkIn;
+
+                $result[] = new Duty(
+                    id: VO\DutyId::getNew(),
+                    date: new VO\DutyDate($duty['date']),
+                    check: new VO\DutyCheck(in: $checkIn, out: $checkOut),
+                    type: $this->type(),
+                    flight: new VO\DutyFlight($duty['flight']),
+                    location: new VO\DutyLocation(from: $duty['from'], to: $duty['to']),
+                    period: new VO\DutyPeriod(
+                        departure: $duty['departure'],
+                        arrival: $duty['arrival'],
+                    ),
+                    events: $duty['events'],
+                );
+            }
+        }
+
+        return $result;
     }
 
     public function type(): DutyTypeEnum
@@ -153,5 +180,20 @@ final class DTRParser implements ParserInterface
         }
 
         return DutyEventEnum::UNK;
+    }
+
+    private function getCheckOut(array $duties): ?Carbon
+    {
+        foreach ($duties as $duty) {
+            if ($duty['check_in']) {
+                return $duty['check_in'];
+            }
+
+            if ($duty['check_out']) {
+                return $duty['check_out'];
+            }
+        }
+
+        return null;
     }
 }

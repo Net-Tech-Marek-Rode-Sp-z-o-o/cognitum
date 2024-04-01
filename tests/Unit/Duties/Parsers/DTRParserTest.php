@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Duties\Parsers;
 
-use Modules\Duties\Infrastructure\Parsers\Drivers\DTRParser;
+use Modules\Duties\Infrastructure\Parsers\DTR\DTRParser;
 use PHPUnit\Framework\TestCase;
 
 final class DTRParserTest extends TestCase

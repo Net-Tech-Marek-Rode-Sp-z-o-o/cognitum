@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\ObjectMothers\Duties;
 
 use Modules\Duties\Domain\Enums\DutyTypeEnum;
-use Modules\Duties\Infrastructure\Parsers\Drivers\DTRParser;
+use Modules\Duties\Infrastructure\Parsers\DTR\DTRParser;
 use Modules\Duties\Infrastructure\Parsers\ParserRegistry;
 use Tests\Mocks\MockTranslator;
 
